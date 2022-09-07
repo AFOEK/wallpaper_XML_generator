@@ -1,19 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package wallpaper_xml_generator;
 
-/**
- *
- * @author LENOVO
- */
-public class Main_Frm extends javax.swing.JFrame {
+import java.io.File;
+import java.io.IOException;
+import javax.swing.JFileChooser;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
-    /**
-     * Creates new form Main_Frm
-     */
+public class Main_Frm extends javax.swing.JFrame {
+    public static String path;
     public Main_Frm() {
         initComponents();
     }
@@ -32,7 +30,7 @@ public class Main_Frm extends javax.swing.JFrame {
         lbl_duration = new javax.swing.JLabel();
         dur_num = new javax.swing.JSpinner();
         trans_num = new javax.swing.JSpinner();
-        jLabel1 = new javax.swing.JLabel();
+        lbl_browse = new javax.swing.JLabel();
         butt_open = new javax.swing.JButton();
         lbl_path = new javax.swing.JLabel();
         butt_create = new javax.swing.JButton();
@@ -61,11 +59,21 @@ public class Main_Frm extends javax.swing.JFrame {
 
         trans_num.setModel(new javax.swing.SpinnerNumberModel(5, 5, null, 1));
 
-        jLabel1.setText("Folder Browser: ");
+        lbl_browse.setText("Folder Browser: ");
 
         butt_open.setText("Open Folder");
+        butt_open.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                butt_openMouseClicked(evt);
+            }
+        });
 
         butt_create.setText("Create XML !");
+        butt_create.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                butt_createMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -82,40 +90,62 @@ public class Main_Frm extends javax.swing.JFrame {
                                 .addGroup(layout.createSequentialGroup()
                                     .addComponent(lbl_duration, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGap(34, 34, 34)))
-                            .addComponent(jLabel1))
+                            .addComponent(lbl_browse))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(butt_open)
-                                .addGap(18, 18, 18)
-                                .addComponent(butt_create, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(butt_open)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(trans_num, javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(dur_num, javax.swing.GroupLayout.Alignment.LEADING)))))
+                .addGap(18, 18, 18)
+                .addComponent(butt_create, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(31, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lbl_duration, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dur_num, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lbl_duration_trans, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(trans_num, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(butt_open, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(butt_create))
-                .addGap(18, 18, 18)
-                .addComponent(lbl_path, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(butt_create, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lbl_duration, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(dur_num, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lbl_duration_trans, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(trans_num, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lbl_browse)
+                            .addComponent(butt_open, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(lbl_path, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void butt_openMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_butt_openMouseClicked
+        JFileChooser filechooser = new JFileChooser();
+        filechooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int opt = filechooser.showOpenDialog(this);
+        if(opt == JFileChooser.APPROVE_OPTION){
+            File dir = filechooser.getSelectedFile();
+            lbl_path.setText(dir.getName());
+        }else{
+            lbl_path.setText("Open Command get canceled");
+        }
+    }//GEN-LAST:event_butt_openMouseClicked
+
+    private void butt_createMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_butt_createMouseClicked
+        try{
+            
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_butt_createMouseClicked
 
     /**
      * @param args the command line arguments
@@ -146,6 +176,7 @@ public class Main_Frm extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new Main_Frm().setVisible(true);
             }
@@ -157,7 +188,7 @@ public class Main_Frm extends javax.swing.JFrame {
     private javax.swing.JButton butt_open;
     private javax.swing.JDialog dir_browser;
     private javax.swing.JSpinner dur_num;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel lbl_browse;
     private javax.swing.JLabel lbl_duration;
     private javax.swing.JLabel lbl_duration_trans;
     private javax.swing.JLabel lbl_path;
